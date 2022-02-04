@@ -12,7 +12,7 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(pack.head, 0);
-        let item = Item::new("server", "localhost");
+        let item = Item::new("server", "localhost").unwrap();
         assert!(!item.uuid.is_nil());
         let state = pack.add(item);
         assert_eq!(pack.head, 1);
@@ -28,9 +28,9 @@ mod tests {
             id: 23,
             ..Default::default()
         };
-        let item = Item::new("server", "localhost");
+        let item = Item::new("server", "localhost").unwrap();
         pack.add(item);
-        let item = Item::new("logs_on", "true");
+        let item = Item::new("logs_on", "true").unwrap();
         pack.add(item);
         assert!(pack.head == 2);
         pack.drop();
@@ -44,11 +44,11 @@ mod tests {
             ..Default::default()
         };
         for _ in 0..=999 {
-            let item = Item::new("lorem", "ipsum");
+            let item = Item::new("lorem", "ipsum").unwrap();
             pack.add(item);
         }
         assert!(pack.head == 1000);
-        let item = Item::new("lorem", "ipsum");
+        let item = Item::new("lorem", "ipsum").unwrap();
         let state = pack.add(item).unwrap();
         assert_eq!(state, PackState::CapacityFull);
     }
