@@ -1,6 +1,7 @@
 use crate::item::Item;
 use log::warn;
 use uuid::Uuid;
+use crate::constant::MAX_ITEM;
 
 #[cfg(test)]
 mod tests {
@@ -12,11 +13,11 @@ mod tests {
             id: 23,
             ..Default::default()
         };
-        assert_eq!(pack.head, 0);
+        assert_eq!(pack.get_head(), 0);
         let item = Item::new("server", "localhost").unwrap();
         assert!(!item.uuid.is_nil());
         let state = pack.add(item);
-        assert_eq!(pack.head, 1);
+        assert_eq!(pack.get_head(), 1);
         match state {
             Some(PackState::Added(v)) => assert!(!v.is_nil()),
             _ => {}
@@ -33,9 +34,9 @@ mod tests {
         pack.add(item);
         let item = Item::new("logs_on", "true").unwrap();
         pack.add(item);
-        assert!(pack.head == 2);
+        assert!(pack.get_head() == 2);
         pack.drop();
-        assert!(pack.head == 0);
+        assert!(pack.get_head() == 0);
     }
 
     #[test]
@@ -48,7 +49,7 @@ mod tests {
             let item = Item::new("lorem", "ipsum").unwrap();
             pack.add(item);
         }
-        assert!(pack.head == 1000);
+        assert!(pack.get_head() == 1000);
         let item = Item::new("lorem", "ipsum").unwrap();
         let state = pack.add(item).unwrap();
         assert_eq!(state, PackState::CapacityFull);
@@ -70,13 +71,11 @@ mod tests {
     }
 }
 
-const MAX_ITEM: u16 = 1000;
-
 #[derive(Default)]
 pub struct Pack {
     pub id: u32,
-    pub items: Vec<Item>,
-    pub head: u16,
+    items: Vec<Item>,
+    head: u16,
 }
 
 #[allow(dead_code)]
@@ -104,6 +103,10 @@ impl Pack {
 
     pub fn get(&self, key: &str) -> Option<&Item> {
         self.items.iter().find(|i| i.key == key)
+    }
+
+    pub fn get_head(&self)->u16{
+        self.head
     }
 }
 

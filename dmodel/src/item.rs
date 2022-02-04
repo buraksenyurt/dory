@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter};
 use thiserror::Error;
 use uuid::Uuid;
+use crate::constant::{MAX_KEY_LEN, MAX_VALUE_LEN};
 
 #[cfg(test)]
 mod tests {
@@ -36,9 +37,6 @@ mod tests {
         .unwrap();
     }
 }
-
-const MAX_KEY_LEN: usize = 16;
-const MAX_VALUE_LEN: usize = 128;
 
 #[derive(Copy, Clone)]
 pub struct Item {
