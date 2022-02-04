@@ -1,4 +1,5 @@
 use crate::item::Item;
+use log::warn;
 use uuid::Uuid;
 
 #[cfg(test)]
@@ -52,6 +53,21 @@ mod tests {
         let state = pack.add(item).unwrap();
         assert_eq!(state, PackState::CapacityFull);
     }
+
+    #[test]
+    fn should_we_can_find_added_item() {
+        let mut pack = Pack {
+            id: 23,
+            ..Default::default()
+        };
+        let item = Item::new("server", "london").unwrap();
+        pack.add(item);
+        let item = Item::new("debug", "on").unwrap();
+        pack.add(item);
+
+        let item = pack.get("debug").unwrap();
+        assert_eq!(item.value, "on");
+    }
 }
 
 const MAX_ITEM: u16 = 1000;
@@ -72,18 +88,22 @@ impl Pack {
                 self.items.push(item);
                 Some(PackState::Added(item.uuid))
             }
-            _ => Some(PackState::CapacityFull),
+            _ => {
+                warn!("Capacity is full for Pack #{}", self.id);
+                Some(PackState::CapacityFull)
+            }
         }
     }
 
     pub fn drop(&mut self) -> &Self {
+        warn!("Pack #{} dropped", self.id);
         self.items = Vec::new();
         self.head = 0;
         self
     }
 
-    pub fn get(&self) -> Item {
-        todo!();
+    pub fn get(&self, key: &str) -> Option<&Item> {
+        self.items.iter().find(|i| i.key == key)
     }
 }
 
