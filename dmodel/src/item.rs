@@ -6,7 +6,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn create_new_item_test() {
+    fn should_created_item_has_uuid() {
         let sample = Item::new("server", "localhost");
         let uuid = sample.uuid;
         assert!(!uuid.is_nil());

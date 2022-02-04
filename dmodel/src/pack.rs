@@ -6,7 +6,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn create_pack_test() {
+    fn should_we_can_add_items_to_pack() {
         let mut pack = Pack {
             id: 23,
             ..Default::default()
@@ -23,7 +23,7 @@ mod tests {
     }
 
     #[test]
-    fn drop_pack_test() {
+    fn should_packs_items_are_empty_after_drop() {
         let mut pack = Pack {
             id: 23,
             ..Default::default()
@@ -35,6 +35,22 @@ mod tests {
         assert!(pack.head == 2);
         pack.drop();
         assert!(pack.head == 0);
+    }
+
+    #[test]
+    fn should_capacity_is_full_if_item_add_after_max() {
+        let mut pack = Pack {
+            id: 23,
+            ..Default::default()
+        };
+        for _ in 0..=999 {
+            let item = Item::new("lorem", "ipsum");
+            pack.add(item);
+        }
+        assert!(pack.head == 1000);
+        let item = Item::new("lorem", "ipsum");
+        let state = pack.add(item).unwrap();
+        assert_eq!(state, PackState::CapacityFull);
     }
 }
 
@@ -65,8 +81,13 @@ impl Pack {
         self.head = 0;
         self
     }
+
+    pub fn get(&self) -> Item {
+        todo!();
+    }
 }
 
+#[derive(Debug, PartialEq)]
 pub enum PackState {
     Added(Uuid),
     CapacityFull,
