@@ -1,11 +1,12 @@
+use crate::constant::MAX_ITEM;
 use crate::item::Item;
 use log::warn;
 use uuid::Uuid;
-use crate::constant::MAX_ITEM;
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::value::Value;
 
     #[test]
     fn should_we_can_add_items_to_pack() {
@@ -14,7 +15,7 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(pack.get_head(), 0);
-        let item = Item::new("server", "localhost").unwrap();
+        let item = Item::new("server", Value::Text("localhost")).unwrap();
         assert!(!item.uuid.is_nil());
         let state = pack.add(item);
         assert_eq!(pack.get_head(), 1);
@@ -30,9 +31,9 @@ mod tests {
             id: 23,
             ..Default::default()
         };
-        let item = Item::new("server", "localhost").unwrap();
+        let item = Item::new("server", Value::Text("localhost")).unwrap();
         pack.add(item);
-        let item = Item::new("logs_on", "true").unwrap();
+        let item = Item::new("logs_on", Value::Text("true")).unwrap();
         pack.add(item);
         assert!(pack.get_head() == 2);
         pack.drop();
@@ -46,11 +47,11 @@ mod tests {
             ..Default::default()
         };
         for _ in 0..=999 {
-            let item = Item::new("lorem", "ipsum").unwrap();
+            let item = Item::new("lorem", Value::Text("ipsum")).unwrap();
             pack.add(item);
         }
         assert!(pack.get_head() == 1000);
-        let item = Item::new("lorem", "ipsum").unwrap();
+        let item = Item::new("lorem", Value::Text("ipsum")).unwrap();
         let state = pack.add(item).unwrap();
         assert_eq!(state, PackState::CapacityFull);
     }
@@ -61,13 +62,13 @@ mod tests {
             id: 23,
             ..Default::default()
         };
-        let item = Item::new("server", "london").unwrap();
+        let item = Item::new("server", Value::Text("london")).unwrap();
         pack.add(item);
-        let item = Item::new("debug", "on").unwrap();
+        let item = Item::new("debug", Value::Text("on")).unwrap();
         pack.add(item);
 
         let item = pack.get("debug").unwrap();
-        assert_eq!(item.value, "on");
+        assert_eq!(item.value, Value::Text("on"));
     }
 }
 
@@ -105,7 +106,7 @@ impl Pack {
         self.items.iter().find(|i| i.key == key)
     }
 
-    pub fn get_head(&self)->u16{
+    pub fn get_head(&self) -> u16 {
         self.head
     }
 }
