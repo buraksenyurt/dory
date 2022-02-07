@@ -9,6 +9,7 @@ pub enum Value {
     ThinFloat(f32),
     LargeFloat(f64),
     Text(&'static str),
+    Logical(bool)
 }
 
 impl Display for Value {

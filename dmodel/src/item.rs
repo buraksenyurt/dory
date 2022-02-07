@@ -38,6 +38,25 @@ mod tests {
         )
         .unwrap();
     }
+
+    #[test]
+    fn should_primitive_values_works() {
+        let logson = Item::new("logs_on", Value::Logical(true)).unwrap();
+        assert_eq!(logson.value, Value::Logical(true));
+
+        let max_player = Item::new("maxplayer", Value::ThinNumber(8)).unwrap();
+        assert_eq!(max_player.value, Value::ThinNumber(8));
+
+        let default_value = Item::new("defaultvalue", Value::ThinFloat(3.22)).unwrap();
+        assert_eq!(default_value.value, Value::ThinFloat(3.22));
+
+        let edge_of_tomorrow =
+            Item::new("pi", Value::LargeFloat(24.342343243423423423431415)).unwrap();
+        assert_eq!(
+            edge_of_tomorrow.value,
+            Value::LargeFloat(24.342343243423423423431415)
+        );
+    }
 }
 
 #[derive(Copy, Clone)]
