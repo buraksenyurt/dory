@@ -1,9 +1,13 @@
 [package]
 name = "dmodel"
+authors = ["Burak Selim Şenyurt"]
 description = "Model Library"
 version = "0.1.0"
 edition = "2021"
 license= "MIT"
+keywords = ["distributed cache" , "caching" , "experimental"]
+repository = "https://github.com/buraksenyurt/dory/tree/main/dmodel"
+categories = ["Distributed Systems"]
 
 [dependencies]
 uuid = { version = "0.8", features = ["serde", "v4"] }
