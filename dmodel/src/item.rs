@@ -59,6 +59,7 @@ mod tests {
     }
 }
 
+/// It is the key:value object that holds primitive data types by marking them with the unique key.
 #[derive(Copy, Clone)]
 pub struct Item {
     pub key: &'static str,
@@ -68,6 +69,30 @@ pub struct Item {
 
 #[allow(dead_code)]
 impl Item {
+    //! [`Item::new`] function
+    //!
+    /// Generates a new key:value item
+    ///
+    /// # Panics
+    ///
+    /// If the key or value is greater than the allowed length, panic occurs.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crate::dmodel::item::Item;
+    /// use crate::dmodel::value::Value;
+    ///
+    ///  let sample = Item::new("server", Value::Text("localhost"));
+    ///  match sample {
+    ///   Ok(s) => {
+    ///      assert!(!s.uuid.is_nil());
+    ///      assert_eq!(s.to_string(), "{\"server\":\"Text(\"localhost\")\"}");
+    ///     }
+    ///     _ => {}
+    ///   }
+    ///
+    /// ```
     pub fn new(key: &'static str, value: Value) -> Result<Self, NewItemError> {
         if key.as_bytes().len() > MAX_KEY_LEN {
             return Err(NewItemError::InvalidKeyLen);

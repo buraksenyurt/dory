@@ -72,11 +72,23 @@ mod tests {
     }
 }
 
+/// The package object that holds the Item collection.
+///
+/// # Examples
+///
+/// ```
+/// use dmodel::pack::Pack;
+///
+/// let mut pack = Pack { ///
+///     id: 23,
+///     ..Default::default()
+///  };
+/// ```
 #[derive(Default)]
 pub struct Pack {
     pub id: u32,
-    items: Vec<Item>,
-    head: u16,
+    pub items: Vec<Item>,
+    pub head: u16,
 }
 
 #[allow(dead_code)]
