@@ -77,12 +77,21 @@ mod tests {
 /// # Examples
 ///
 /// ```
+/// // Create a new empty pack
 /// use dmodel::pack::Pack;
+/// use dmodel::value::Value;
+/// use dmodel::item::Item;
 ///
-/// let mut pack = Pack { ///
+/// let mut pack = Pack {
 ///     id: 23,
 ///     ..Default::default()
 ///  };
+///
+/// // Add some item into this pack
+/// let item = Item::new("server", Value::Text("london")).unwrap();
+/// pack.add(item);
+///
+/// assert!(pack.get_head() == 1);
 /// ```
 #[derive(Default)]
 pub struct Pack {
@@ -93,6 +102,12 @@ pub struct Pack {
 
 #[allow(dead_code)]
 impl Pack {
+    /// Adds a new item to the pack
+    ///
+    /// # Warning
+    ///
+    /// PackState::CapacityFull is returned if the package content has reached the maximum number of elements.
+    /// Otherwise, the item is added to the package.
     pub fn add(&mut self, item: Item) -> Option<PackState> {
         self.head += 1;
         match &self.head {
@@ -107,6 +122,7 @@ impl Pack {
         }
     }
 
+    /// Empties the pack contents and returns the head to the initial position.
     pub fn drop(&mut self) -> &Self {
         warn!("Pack #{} dropped", self.id);
         self.items = Vec::new();
@@ -114,15 +130,18 @@ impl Pack {
         self
     }
 
+    /// Retrieves the value of a key from within the pack.
     pub fn get(&self, key: &str) -> Option<&Item> {
         self.items.iter().find(|i| i.key == key)
     }
 
+    /// Returns the current position of the head.
     pub fn get_head(&self) -> u16 {
         self.head
     }
 }
 
+/// It gives information about the pack status.
 #[derive(Debug, PartialEq)]
 pub enum PackState {
     Added(Uuid),
