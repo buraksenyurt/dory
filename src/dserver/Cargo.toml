@@ -1,12 +1,12 @@
 [package]
-name = "dmodel"
+name = "dserver"
 authors = ["Burak Selim Şenyurt"]
-description = "Model Library"
+description = "Server Application"
 version = "0.1.0"
 edition = "2021"
 license= "MIT"
 keywords = ["distributed cache" , "caching" , "experimental"]
-repository = "https://github.com/buraksenyurt/dory/tree/main/dmodel"
+repository = "https://github.com/buraksenyurt/dory/tree/src/dserver"
 categories = ["Distributed Systems"]
 
 [dependencies]
