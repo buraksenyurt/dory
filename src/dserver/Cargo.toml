@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 license= "MIT"
 keywords = ["distributed cache" , "caching" , "experimental"]
-repository = "https://github.com/buraksenyurt/dory/tree/src/dserver"
+repository = "https://github.com/buraksenyurt/dory/"
 categories = ["Distributed Systems"]
 
 [dependencies]
