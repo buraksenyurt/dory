@@ -16,7 +16,7 @@ pub enum NewItemError {
 }
 
 /// It is the key:value object that holds primitive data types by marking them with the unique key.
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Item {
     pub key: &'static str,
     pub value: Value,
@@ -174,18 +174,23 @@ pub enum PackState {
 }
 
 /// It is the enum that contains the event definitions to be used in the transmitter channel.
+#[derive(Debug)]
 pub enum TransmitterEvent {
     StartPack,
     AddNewItem(Candidate),
 }
 
 /// It is the enum that contains the event definitions to be used in the receiver channel.
+#[derive(Debug)]
 pub enum InformativeEvent {
     PackCreated,
+    PackCreatedError,
     ItemAdded(Uuid),
+    ItemAddError
 }
 
 /// Carries candidate object information to be added to the package.
+#[derive(Debug)]
 pub struct Candidate {
     pub pack_id: u32,
     pub object: Item,
