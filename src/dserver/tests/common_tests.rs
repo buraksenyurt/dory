@@ -30,7 +30,7 @@ mod tests {
         it is really toooo long name can you understand me body."#,
             ),
         )
-            .unwrap();
+        .unwrap();
     }
 
     #[test]
@@ -115,5 +115,3 @@ mod tests {
         assert_eq!(item.value, Value::Text("on"));
     }
 }
-
-

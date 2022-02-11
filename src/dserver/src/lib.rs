@@ -172,3 +172,21 @@ pub enum PackState {
     Added(Uuid),
     CapacityFull,
 }
+
+/// It is the enum that contains the event definitions to be used in the transmitter channel.
+pub enum TransmitterEvent {
+    StartPack,
+    AddNewItem(Candidate),
+}
+
+/// It is the enum that contains the event definitions to be used in the receiver channel.
+pub enum InformativeEvent {
+    PackCreated,
+    ItemAdded(Uuid),
+}
+
+/// Carries candidate object information to be added to the package.
+pub struct Candidate {
+    pub pack_id: u32,
+    pub object: Item,
+}
