@@ -1,7 +1,7 @@
 use crossbeam::channel;
 use crossbeam::channel::{Receiver, Sender};
-use dserver::{Candidate, InformativeEvent, Item, Pack, TransmitterEvent, Value};
-use log::{error, info};
+use dserver::{Candidate, InformativeEvent, Item, Pack, Search, TransmitterEvent, Value};
+use log::{error, info, warn};
 use std::process::exit;
 use std::sync::{Arc, Mutex};
 use std::{env, thread};
@@ -51,8 +51,18 @@ fn simple_mode() {
     }));
 
     let _ = event_transmitter.send(TransmitterEvent::AddNewItem(Candidate {
-        pack: pack_ref,
+        pack: pack_ref.clone(),
         object: Item::new("level", Value::ThinNumber(50)).unwrap(),
+    }));
+
+    let _ = event_transmitter.send(TransmitterEvent::GetItem(Search {
+        key: "server",
+        pack: pack_ref.clone(),
+    }));
+
+    let _ = event_transmitter.send(TransmitterEvent::GetItem(Search {
+        key: "mail_server",
+        pack: pack_ref,
     }));
 
     drop(event_transmitter);
@@ -76,6 +86,27 @@ fn pack_worker(events: Receiver<TransmitterEvent>, informative: Sender<Informati
                 {
                     error!("{:?}", InformativeEvent::ItemAddError);
                     break;
+                }
+            }
+            TransmitterEvent::GetItem(s) => {
+                let pack = s.pack.lock().unwrap();
+                info!("{:?}",pack);
+                let item = pack.get(s.key);
+                info!("{:?}",item);
+                match item {
+                    Some(o) => {
+                        info!("{} founded.", o.to_string());
+                        if informative
+                            .send(InformativeEvent::ItemFound(Arc::new(*o)))
+                            .is_err()
+                        {
+                            error!("{:?}", InformativeEvent::ItemGetError);
+                            break;
+                        }
+                    }
+                    None => {
+                        warn!("{:?}", InformativeEvent::ItemNotFound);
+                    }
                 }
             }
         }

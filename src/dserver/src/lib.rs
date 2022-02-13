@@ -178,6 +178,7 @@ pub enum PackState {
 #[derive(Debug)]
 pub enum TransmitterEvent {
     AddNewItem(Candidate),
+    GetItem(Search),
 }
 
 /// It is the enum that contains the event definitions to be used in the receiver channel.
@@ -185,6 +186,9 @@ pub enum TransmitterEvent {
 pub enum InformativeEvent {
     ItemAdded(Uuid),
     ItemAddError,
+    ItemNotFound,
+    ItemFound(Arc<Item>),
+    ItemGetError,
 }
 
 /// Carries candidate object information to be added to the package.
@@ -192,4 +196,11 @@ pub enum InformativeEvent {
 pub struct Candidate {
     pub pack: Arc<Mutex<Pack>>,
     pub object: Item,
+}
+
+/// Search data for item's get operation.
+#[derive(Debug)]
+pub struct Search {
+    pub pack: Arc<Mutex<Pack>>,
+    pub key: &'static str,
 }
