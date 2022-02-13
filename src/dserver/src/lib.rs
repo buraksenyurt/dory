@@ -1,5 +1,6 @@
 use log::warn;
 use std::fmt::{Display, Formatter};
+use std::sync::{Arc, Mutex};
 use thiserror::Error;
 use uuid::Uuid;
 
@@ -118,7 +119,7 @@ impl Display for Value {
 ///
 /// assert!(pack.get_head() == 1);
 /// ```
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Pack {
     pub id: u32,
     pub items: Vec<Item>,
@@ -176,22 +177,19 @@ pub enum PackState {
 /// It is the enum that contains the event definitions to be used in the transmitter channel.
 #[derive(Debug)]
 pub enum TransmitterEvent {
-    StartPack,
     AddNewItem(Candidate),
 }
 
 /// It is the enum that contains the event definitions to be used in the receiver channel.
 #[derive(Debug)]
 pub enum InformativeEvent {
-    PackCreated,
-    PackCreatedError,
     ItemAdded(Uuid),
-    ItemAddError
+    ItemAddError,
 }
 
 /// Carries candidate object information to be added to the package.
 #[derive(Debug)]
 pub struct Candidate {
-    pub pack_id: u32,
+    pub pack: Arc<Mutex<Pack>>,
     pub object: Item,
 }
