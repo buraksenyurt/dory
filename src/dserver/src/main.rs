@@ -2,12 +2,37 @@ use crossbeam::channel;
 use crossbeam::channel::{Receiver, Sender};
 use dserver::{Candidate, InformativeEvent, Item, Pack, TransmitterEvent, Value};
 use log::{error, info};
+use std::process::exit;
 use std::sync::{Arc, Mutex};
-use std::thread;
+use std::{env, thread};
 
 fn main() {
     env_logger::init();
 
+    let args: Vec<String> = env::args().collect();
+    match args.len() {
+        2 => {
+            let command = &args[1];
+            match command.to_lowercase().as_str() {
+                "simple" => {
+                    info!("Single mode is starting.");
+                    simple_mode();
+                    info!("Simulation completed.");
+                }
+                _ => {
+                    error!("Understandable command.");
+                    exit(1);
+                }
+            }
+        }
+        _ => {
+            error!("No one else is here. Argument error.");
+            exit(1);
+        }
+    }
+}
+
+fn simple_mode() {
     let (event_transmitter, event_receiver) = channel::unbounded();
     let (informative_transmitter, informative_receiver) = channel::unbounded();
 
