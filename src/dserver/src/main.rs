@@ -1,10 +1,16 @@
 use crossbeam::channel;
 use crossbeam::channel::{Receiver, Sender};
-use dserver::{Candidate, InformativeEvent, Item, Pack, Search, TransmitterEvent, Value};
+use event::{InformativeEvent, TransmitterEvent};
 use log::{error, info, warn};
+use model::{Candidate, Item, Pack, Search, Value};
 use std::process::exit;
 use std::sync::{Arc, Mutex};
 use std::{env, thread};
+
+mod event;
+mod model;
+mod constant;
+mod derror;
 
 fn main() {
     env_logger::init();
@@ -81,31 +87,31 @@ fn pack_worker(events: Receiver<TransmitterEvent>, informative: Sender<Informati
                 c.pack.lock().unwrap().add(c.object);
                 info!("Item {} added to pack.", c.object);
                 if informative
-                    .send(InformativeEvent::ItemAdded(c.object.uuid))
+                    .send(InformativeEvent::Added(c.object.uuid))
                     .is_err()
                 {
-                    error!("{:?}", InformativeEvent::ItemAddError);
+                    error!("{:?}", InformativeEvent::AddError);
                     break;
                 }
             }
             TransmitterEvent::GetItem(s) => {
                 let pack = s.pack.lock().unwrap();
-                info!("{:?}",pack);
+                info!("{:?}", pack);
                 let item = pack.get(s.key);
-                info!("{:?}",item);
+                info!("{:?}", item);
                 match item {
                     Some(o) => {
                         info!("{} founded.", o.to_string());
                         if informative
-                            .send(InformativeEvent::ItemFound(Arc::new(*o)))
+                            .send(InformativeEvent::Found(Arc::new(*o)))
                             .is_err()
                         {
-                            error!("{:?}", InformativeEvent::ItemGetError);
+                            error!("{:?}", InformativeEvent::GetError);
                             break;
                         }
                     }
                     None => {
-                        warn!("{:?}", InformativeEvent::ItemNotFound);
+                        warn!("{:?}", InformativeEvent::NotFound);
                     }
                 }
             }

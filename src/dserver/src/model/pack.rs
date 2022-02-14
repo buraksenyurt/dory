@@ -1,56 +1,79 @@
-#[cfg(test)]
-mod tests {
-    use dserver::{Item, Pack, PackState, Value};
+use super::Item;
+use super::PackState;
+use log::warn;
+use crate::constant::constant::MAX_ITEM;
 
-    #[test]
-    fn should_created_item_has_uuid() {
-        let sample = Item::new("server", Value::Text("localhost"));
-        match sample {
-            Ok(s) => {
-                assert!(!s.uuid.is_nil());
-                assert_eq!(s.to_string(), "{\"server\":\"Text(\"localhost\")\"}");
+/// The package object that holds the Item collection.
+///
+/// # Examples
+///
+/// ```
+/// // Create a new empty pack
+/// use dserver::{Pack,Item,Value};
+///
+/// let mut pack = Pack {
+///     id: 23,
+///     ..Default::default()
+///  };
+///
+/// // Add some item into this pack
+/// let item = Item::new("server", Value::Text("london")).unwrap();
+/// pack.add(item);
+///
+/// assert!(pack.get_head() == 1);
+/// ```
+#[derive(Default, Debug)]
+pub struct Pack {
+    pub id: u32,
+    pub items: Vec<Item>,
+    pub head: u16,
+}
+
+#[allow(dead_code)]
+impl Pack {
+    /// Adds a new item to the pack
+    ///
+    /// # Warning
+    ///
+    /// PackState::CapacityFull is returned if the package content has reached the maximum number of elements.
+    /// Otherwise, the item is added to the package.
+    pub fn add(&mut self, item: Item) -> Option<PackState> {
+        self.head += 1;
+        match &self.head {
+            0..=MAX_ITEM => {
+                self.items.push(item);
+                Some(PackState::Added(item.uuid))
             }
-            _ => {}
+            _ => {
+                warn!("Capacity is full for Pack #{}", self.id);
+                Some(PackState::CapacityFull)
+            }
         }
     }
 
-    #[test]
-    #[should_panic]
-    fn should_long_key_name_throw_panic() {
-        let _ = Item::new("server name is too long", Value::Text("localhost")).unwrap();
+    /// Empties the pack contents and returns the head to the initial position.
+    pub fn drop(&mut self) -> &Self {
+        warn!("Pack #{} dropped", self.id);
+        self.items = Vec::new();
+        self.head = 0;
+        self
     }
 
-    #[test]
-    #[should_panic]
-    fn should_long_value_throw_panic() {
-        let _ = Item::new(
-            "server",
-            Value::Text(
-                r#"This is the localhost name of the server but
-        it is really toooo long name can you understand me body."#,
-            ),
-        )
-        .unwrap();
+    /// Retrieves the value of a key from within the pack.
+    pub fn get(&self, key: &str) -> Option<&Item> {
+        self.items.iter().find(|i| i.key == key)
     }
 
-    #[test]
-    fn should_primitive_values_works() {
-        let logson = Item::new("logs_on", Value::Logical(true)).unwrap();
-        assert_eq!(logson.value, Value::Logical(true));
-
-        let max_player = Item::new("maxplayer", Value::ThinNumber(8)).unwrap();
-        assert_eq!(max_player.value, Value::ThinNumber(8));
-
-        let default_value = Item::new("defaultvalue", Value::ThinFloat(3.22)).unwrap();
-        assert_eq!(default_value.value, Value::ThinFloat(3.22));
-
-        let edge_of_tomorrow =
-            Item::new("pi", Value::LargeFloat(24.342343243423423423431415)).unwrap();
-        assert_eq!(
-            edge_of_tomorrow.value,
-            Value::LargeFloat(24.342343243423423423431415)
-        );
+    /// Returns the current position of the head.
+    pub fn get_head(&self) -> u16 {
+        self.head
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Value;
+    use super::*;
 
     #[test]
     fn should_we_can_add_items_to_pack() {
