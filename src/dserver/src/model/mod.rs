@@ -6,10 +6,10 @@ pub use search::Search;
 pub use value::Value;
 
 pub mod candidate;
+mod command;
 pub mod item;
+mod message;
 pub mod pack;
 pub mod pack_state;
 pub mod search;
 pub mod value;
-mod message;
-mod command;

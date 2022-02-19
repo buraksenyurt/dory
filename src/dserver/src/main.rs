@@ -7,10 +7,10 @@ use std::process::exit;
 use std::sync::{Arc, Mutex};
 use std::{env, thread};
 
-mod event;
-mod model;
 mod constant;
 mod derror;
+mod event;
+mod model;
 
 fn main() {
     env_logger::init();

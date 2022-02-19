@@ -1,7 +1,7 @@
 use super::Item;
 use super::PackState;
-use log::warn;
 use crate::constant::constant::MAX_ITEM;
+use log::warn;
 
 /// The package object that holds the Item collection.
 ///
@@ -72,8 +72,8 @@ impl Pack {
 
 #[cfg(test)]
 mod tests {
-    use crate::Value;
     use super::*;
+    use crate::Value;
 
     #[test]
     fn should_we_can_add_items_to_pack() {
