@@ -18,11 +18,11 @@ Dory uses her own private messages. The format of network packets coming to the 
 
 **For example**
 
-ADD[ServerName][STRING][LOCALHOST]
-GET[ServerName]
-DEL[ServerName]
-ADD[Logs][BOOLEAN][0]
-ADD[DefaultPi][U32][3.1415]
+- ADD[ServerName][STRING][LOCALHOST]
+- GET[ServerName]
+- DEL[ServerName]
+- ADD[Logs][BOOLEAN][0]
+- ADD[DefaultPi][U32][3.1415]
 
 ## Common Features
 
