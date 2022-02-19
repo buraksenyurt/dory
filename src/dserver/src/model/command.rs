@@ -14,9 +14,9 @@ impl FromStr for Command {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "ADD" => Ok(Command::Add),
-            "GET" => Ok(Command::Get),
-            "DEL" => Ok(Command::Del),
+            "ADD" => Ok(Self::Add),
+            "GET" => Ok(Self::Get),
+            "DEL" => Ok(Self::Del),
             _ => Err(CommandError::Unknown),
         }
     }
