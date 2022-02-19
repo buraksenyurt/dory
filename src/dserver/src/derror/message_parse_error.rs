@@ -1,10 +1,10 @@
 use std::str::Utf8Error;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, PartialEq)]
 pub enum MessageParseError {
-    #[error("Invalid item count")]
-    ItemCount,
+    #[error("Key name is too long")]
+    KeyNameTooLong,
     #[error("Message is empty")]
     Empty,
     #[error("Encoding problem")]
