@@ -2,7 +2,7 @@ use crate::derror::command_error::CommandError;
 use std::str::FromStr;
 
 /// Represents incoming commands to the tcp line.
-#[derive(Debug,PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Command {
     Add,
     Get,
@@ -29,7 +29,7 @@ mod test {
 
     #[test]
     #[should_panic]
-    fn command_test() {
+    fn should_valid_string_could_be_convert_to_command() {
         let cmd = Command::from_str("ADD").unwrap();
         assert_eq!(cmd, Command::Add);
         // Commands are case-sensitive

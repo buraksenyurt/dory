@@ -4,15 +4,17 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum MessageParseError {
     #[error("Invalid item count")]
-    InvalidItemCount,
+    ItemCount,
     #[error("Message is empty")]
     Empty,
     #[error("Encoding problem")]
-    InvalidEncoding,
+    Encoding,
+    #[error("Invalid command")]
+    Command,
 }
 
 impl From<Utf8Error> for MessageParseError {
     fn from(_: Utf8Error) -> Self {
-        Self::InvalidEncoding
+        Self::Encoding
     }
 }
