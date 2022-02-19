@@ -11,18 +11,18 @@ Dory's main idea is to use blocks that store key:value pairs in small size and p
 Dory uses her own private messages. The format of network packets coming to the server is in a certain standard.
 
 - The commands that can be used are certain and cannot exceed 3 letters.
-- The first [] contains the key name. Key lengths are fixed and cannot exceed 16 characters.
-- If the ADD command is used, the third and last [] blocks are used.
-  - The second [] contains object's type.
-  - The last [] contains the object. The object length is shaped according to the type specified in the previous section.
+- The first part of message contains the key name. Key lengths are fixed and cannot exceed 16 characters.
+- If the ADD command is used, the third and last blocks are used.
+  - The third block contains object's type.
+  - The last block contains the concrete object's value. The object length is shaped according to the type specified in the previous section.
 
 **For example**
 
-- ADD[ServerName][STRING][LOCALHOST]
-- GET[ServerName]
-- DEL[ServerName]
-- ADD[Logs][BOOLEAN][0]
-- ADD[DefaultPi][U32][3.1415]
+- ADD|ServerName|STRING|localhost
+- GET|ServerName
+- DEL|ServerName
+- ADD|Logs|BOOLEAN|0
+- ADD|DefaultPi|U32|3.1415
 
 ## Common Features
 
