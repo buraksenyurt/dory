@@ -18,11 +18,25 @@ Dory uses her own private messages. The format of network packets coming to the 
 
 **For example**
 
-- ADD|ServerName|STRING|localhost
+- ADD|ServerName|s|localhost
 - GET|ServerName
 - DEL|ServerName
-- ADD|Logs|BOOLEAN|0
-- ADD|DefaultPi|U32|3.1415
+- ADD|Logs|l|false
+- ADD|DefaultPi|u32|3.1415
+
+s is String, l is boolean, i8 is i8, U32 is u32... Data types are arranged according to the Value enum constant.
+
+```rust
+pub enum Value {
+    ThinNumber(i8),
+    MidNumber(i16),
+    LargeNumber(i32),
+    ThinFloat(f32),
+    LargeFloat(f64),
+    Text(&'static str),
+    Logical(bool),
+}
+```
 
 ## Common Features
 
