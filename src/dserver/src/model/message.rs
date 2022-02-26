@@ -1,6 +1,7 @@
 use crate::constant::constant::MAX_KEY_LEN;
 use crate::derror::message_parse_error::MessageParseError;
 use crate::model::command::Command;
+use crate::Value;
 use std::str::from_utf8;
 
 /// Data model representing incoming messages to the TCP line
@@ -8,11 +9,11 @@ use std::str::from_utf8;
 pub struct Message {
     pub command: Command,
     pub key: String,
-    pub value: Option<String>,
+    pub value: Option<Value>,
 }
 
 impl Message {
-    pub fn new(command: Command, key: String, value: Option<String>) -> Self {
+    pub fn new(command: Command, key: String, value: Option<Value>) -> Self {
         Self {
             command,
             key,
@@ -30,11 +31,11 @@ fn get_part(text: &str) -> Option<(&str, &str)> {
     None
 }
 
-impl TryFrom<&[u8]> for Message {
+impl<'a> TryFrom<&'a [u8]> for Message {
     type Error = MessageParseError;
 
     fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
-        if value.len() == 0 {
+        if value.is_empty() {
             return Err(MessageParseError::Empty);
         }
         let s = from_utf8(value)?;
@@ -47,19 +48,27 @@ impl TryFrom<&[u8]> for Message {
 
         match command {
             "ADD" => {
-                //TODO: I have to write a converter for parsing from value to Value Struct
-                let (_data_type, s) = get_part(s).unwrap();
+                let (data_type, s) = get_part(s).unwrap();
                 let (v, _) = get_part(s).unwrap();
-
+                let object_value = match data_type {
+                    "s" => Value::Text(""), //TODO: Lifetime Error occurred for v. I have to find solution.
+                    "i8" => Value::ThinNumber(v.parse::<i8>().unwrap()),
+                    "i16" => Value::MidNumber(v.parse::<i16>().unwrap()),
+                    "i32" => Value::LargeNumber(v.parse::<i32>().unwrap()),
+                    "f32" => Value::ThinFloat(v.parse::<f32>().unwrap()),
+                    "f64" => Value::LargeFloat(v.parse::<f64>().unwrap()),
+                    "l" => Value::Logical(v.parse::<bool>().unwrap()),
+                    _ => Value::Empty,
+                };
                 Ok(Message::new(
                     Command::Add,
                     key.to_string(),
-                    Some(v.to_string()),
+                    Some(object_value),
                 ))
             }
             "DEL" => Ok(Message::new(Command::Del, key.to_string(), None)),
             "GET" => Ok(Message::new(Command::Get, key.to_string(), None)),
-            _ => return Err(MessageParseError::Command),
+            _ => Err(MessageParseError::Command),
         }
     }
 }
@@ -77,29 +86,30 @@ mod test {
     use crate::derror::message_parse_error::MessageParseError;
     use crate::model::command::Command;
     use crate::model::message::Message;
+    use crate::Value;
 
     #[test]
     fn should_add_messages_could_be_parse() {
-        let message = "ADD|ServerName|STRING|localhost|";
+        let message = "ADD|ServerName|s|localhost|";
         let bytes = message.as_bytes();
         let result = Message::try_from(bytes).unwrap();
         assert_eq!(result.command, Command::Add);
         assert_eq!(result.key, "ServerName".to_string());
-        assert_eq!(result.value, Some("localhost".to_string()));
+        assert_eq!(result.value, Some(Value::Text("")));
 
-        let message = "ADD|Logs|BOOLEAN|0|";
+        let message = "ADD|Logs|l|true|";
         let bytes = message.as_bytes();
         let result = Message::try_from(bytes).unwrap();
         assert_eq!(result.command, Command::Add);
         assert_eq!(result.key, "Logs".to_string());
-        assert_eq!(result.value, Some("0".to_string()));
+        assert_eq!(result.value, Some(Value::Logical(true)));
 
-        let message = "ADD|DefaultPi|U32|3.1415|";
+        let message = "ADD|DefaultPi|f32|3.1415|";
         let bytes = message.as_bytes();
         let result = Message::try_from(bytes).unwrap();
         assert_eq!(result.command, Command::Add);
         assert_eq!(result.key, "DefaultPi".to_string());
-        assert_eq!(result.value, Some("3.1415".to_string()));
+        assert_eq!(result.value, Some(Value::ThinFloat(3.1415)));
     }
 
     #[test]

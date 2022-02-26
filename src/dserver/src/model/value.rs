@@ -17,6 +17,7 @@ pub enum Value {
     LargeFloat(f64),
     Text(&'static str),
     Logical(bool),
+    Empty,
 }
 
 impl Display for Value {
