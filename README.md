@@ -38,6 +38,18 @@ pub enum Value {
 }
 ```
 
+## Development Check
+
+```bash
+# Open two terminal
+
+# Basic Mode
+RUST_LOG=info cargo run basic
+
+# Other terminal
+echo "ADD|ServerName|s|localhost" | netcat localhost 5555
+```
+
 ## Common Features
 
 todo();
