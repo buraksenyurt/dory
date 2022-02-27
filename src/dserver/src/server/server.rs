@@ -1,43 +1,103 @@
-use crate::{InformativeEvent, TransmitterEvent};
+use crate::{Candidate, InformativeEvent, Item, Pack, Search, TransmitterEvent, Value};
+use crossbeam::channel;
 use crossbeam::channel::{Receiver, Sender};
-use log::{error, info};
+use log::{debug, error, info, warn};
 use std::io::Read;
 use std::net::TcpListener;
+use std::sync::{Arc, Mutex};
+use std::thread;
 
+/// It holds the basic information for the TCP server.
 pub struct Server<'a> {
     root: &'a str,
     port: u16,
-    alias: &'a str,
 }
 
 impl<'a> Server<'a> {
-    pub fn new(root: &'a str, port: u16, alias: &'a str) -> Self {
-        Server { root, port, alias }
+    /// Creates a new TCP Server object.
+    pub fn new(root: &'a str, port: u16) -> Self {
+        Server { root, port }
     }
 
+    /// Returns the server address:port information.
     fn address(&self) -> String {
         format!("{}:{}", &self.root, &self.port)
     }
 
-    pub fn run(self, events: Receiver<TransmitterEvent>, informative: Sender<InformativeEvent>) {
+    /// It starts the TCP server and listens for incoming requests.
+    /// It leaves the necessary message to the channel according to the suitability of the requests.
+    /// Using these messages, it adds, reads, and deletes objects in the packets.
+    pub fn run(self) {
+        let (event_transmitter, event_receiver) = channel::unbounded();
+        let (informative_transmitter, informative_receiver) = channel::unbounded();
+
+        let pack = Pack {
+            id: 1,
+            ..Default::default()
+        };
+        info!("Pack #{} initialized", &pack.id);
+        let pack_ref = Arc::new(Mutex::new(pack));
+
+        let _ = thread::spawn(|| pack_worker(event_receiver, informative_transmitter));
+        let _ = thread::spawn(|| {
+            for info in informative_receiver {
+                info!("\t{:?}", info);
+            }
+        });
         info!("{} is running", self.address());
+
         let listener = TcpListener::bind(&self.address());
         match listener {
             Ok(l) => {
                 info!("Server started.");
                 loop {
                     match l.accept() {
-                        Ok((mut stream, addrees)) => {
+                        Ok((mut stream, _addrees)) => {
                             let mut buffer = [0_u8; 1024];
                             match stream.read(&mut buffer) {
                                 Ok(l) => {
                                     let msg = String::from_utf8(buffer[0..l].to_vec());
                                     info!("Request, {:?}", msg.unwrap());
 
-                                    // let _ = event_transmitter.send(TransmitterEvent::AddNewItem(Candidate {
-                                    //     pack: pack_ref.clone(),
-                                    //     object: Item::new("server", Value::Text("localhost")).unwrap(),
-                                    // }));
+                                    //TODO Parse the incoming message, understand it and send it to the appropriate event
+                                    // The following lines are for testing purposes. They will be removed.
+                                    let _ = event_transmitter.send(TransmitterEvent::AddNewItem(
+                                        Candidate {
+                                            pack: pack_ref.clone(),
+                                            object: Item::new("server", Value::Text("localhost"))
+                                                .unwrap(),
+                                        },
+                                    ));
+
+                                    let _ = event_transmitter.send(TransmitterEvent::AddNewItem(
+                                        Candidate {
+                                            pack: pack_ref.clone(),
+                                            object: Item::new("server", Value::Text("localhost"))
+                                                .unwrap(),
+                                        },
+                                    ));
+
+                                    let _ = event_transmitter.send(TransmitterEvent::AddNewItem(
+                                        Candidate {
+                                            pack: pack_ref.clone(),
+                                            object: Item::new("level", Value::ThinNumber(50))
+                                                .unwrap(),
+                                        },
+                                    ));
+
+                                    let _ =
+                                        event_transmitter.send(TransmitterEvent::GetItem(Search {
+                                            key: "server",
+                                            pack: pack_ref.clone(),
+                                        }));
+
+                                    let _ =
+                                        event_transmitter.send(TransmitterEvent::GetItem(Search {
+                                            key: "mail_server",
+                                            pack: pack_ref.clone(),
+                                        }));
+
+                                    //drop(event_transmitter.clone());
                                 }
                                 Err(e) => {
                                     error!("Read error, {}", e);
@@ -52,6 +112,45 @@ impl<'a> Server<'a> {
             }
             Err(e) => {
                 error!("Sunucu başlatılamadı. Hata detayı -> {}", e);
+            }
+        }
+    }
+}
+
+pub fn pack_worker(events: Receiver<TransmitterEvent>, informative: Sender<InformativeEvent>) {
+    for event in events {
+        match event {
+            TransmitterEvent::AddNewItem(c) => {
+                c.pack.lock().unwrap().add(c.object);
+                info!("Item {} added to pack.", c.object);
+                if informative
+                    .send(InformativeEvent::Added(c.object.uuid))
+                    .is_err()
+                {
+                    error!("{:?}", InformativeEvent::AddError);
+                    break;
+                }
+            }
+            TransmitterEvent::GetItem(s) => {
+                let pack = s.pack.lock().unwrap();
+                info!("{:?}", pack);
+                let item = pack.get(s.key);
+                info!("{:?}", item);
+                match item {
+                    Some(o) => {
+                        info!("{} founded.", o.to_string());
+                        if informative
+                            .send(InformativeEvent::Found(Arc::new(*o)))
+                            .is_err()
+                        {
+                            error!("{:?}", InformativeEvent::GetError);
+                            break;
+                        }
+                    }
+                    None => {
+                        warn!("{:?}", InformativeEvent::NotFound);
+                    }
+                }
             }
         }
     }
