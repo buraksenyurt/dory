@@ -1,3 +1,4 @@
+use crate::server::server::Server;
 use crossbeam::channel;
 use crossbeam::channel::{Receiver, Sender};
 use event::{InformativeEvent, TransmitterEvent};
@@ -11,6 +12,7 @@ mod constant;
 mod derror;
 mod event;
 mod model;
+mod server;
 
 fn main() {
     env_logger::init();
@@ -41,6 +43,8 @@ fn main() {
 fn simple_mode() {
     let (event_transmitter, event_receiver) = channel::unbounded();
     let (informative_transmitter, informative_receiver) = channel::unbounded();
+    let web_event_receiver=event_receiver.clone();
+    let web_informative_transmitter=informative_transmitter.clone();
 
     let pack = Pack {
         id: 1,
@@ -50,26 +54,31 @@ fn simple_mode() {
     let pack_ref = Arc::new(Mutex::new(pack));
 
     let t1 = thread::spawn(|| pack_worker(event_receiver, informative_transmitter));
+    let t2=thread::spawn(||{
+        //TODO Read ip and port from environment variables
+        let alpha = Server::new("0.0.0.0", 5555_u16, "localhost");
+        alpha.run(web_event_receiver,web_informative_transmitter);
+    });
 
-    let _ = event_transmitter.send(TransmitterEvent::AddNewItem(Candidate {
-        pack: pack_ref.clone(),
-        object: Item::new("server", Value::Text("localhost")).unwrap(),
-    }));
-
-    let _ = event_transmitter.send(TransmitterEvent::AddNewItem(Candidate {
-        pack: pack_ref.clone(),
-        object: Item::new("level", Value::ThinNumber(50)).unwrap(),
-    }));
-
-    let _ = event_transmitter.send(TransmitterEvent::GetItem(Search {
-        key: "server",
-        pack: pack_ref.clone(),
-    }));
-
-    let _ = event_transmitter.send(TransmitterEvent::GetItem(Search {
-        key: "mail_server",
-        pack: pack_ref,
-    }));
+    // let _ = event_transmitter.send(TransmitterEvent::AddNewItem(Candidate {
+    //     pack: pack_ref.clone(),
+    //     object: Item::new("server", Value::Text("localhost")).unwrap(),
+    // }));
+    //
+    // let _ = event_transmitter.send(TransmitterEvent::AddNewItem(Candidate {
+    //     pack: pack_ref.clone(),
+    //     object: Item::new("level", Value::ThinNumber(50)).unwrap(),
+    // }));
+    //
+    // let _ = event_transmitter.send(TransmitterEvent::GetItem(Search {
+    //     key: "server",
+    //     pack: pack_ref.clone(),
+    // }));
+    //
+    // let _ = event_transmitter.send(TransmitterEvent::GetItem(Search {
+    //     key: "mail_server",
+    //     pack: pack_ref,
+    // }));
 
     drop(event_transmitter);
 
