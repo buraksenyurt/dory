@@ -2,7 +2,7 @@ use crate::derror::command_error::CommandError;
 use std::str::FromStr;
 
 /// Represents incoming commands to the tcp line.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Command {
     Add,
     Get,

@@ -1,5 +1,5 @@
 use crate::model::Message;
-use crate::{Candidate, InformativeEvent, Item, Pack, Search, TransmitterEvent, Value};
+use crate::{InformativeEvent, Pack, TransmitterEvent};
 use crossbeam::channel;
 use crossbeam::channel::{Receiver, Sender};
 use log::{error, info, warn};
@@ -57,10 +57,11 @@ impl<'a> Server<'a> {
                             let mut buffer = [0_u8; 512];
                             match stream.read(&mut buffer) {
                                 Ok(l) => {
+                                    let msg = String::from_utf8(buffer[0..l].to_vec());
+                                    info!("Request, {:?}", msg.unwrap());
                                     let message = Message::try_from(&buffer[0..l]).unwrap();
                                     info!("{:?}", message);
                                     message.send(&pack_ref, &event_transmitter);
-                                    //drop(event_transmitter.clone());
                                 }
                                 Err(e) => {
                                     error!("Read error, {}", e);

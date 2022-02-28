@@ -1,14 +1,15 @@
 use crate::constant::constant::MAX_KEY_LEN;
 use crate::derror::message_parse_error::MessageParseError;
 use crate::model::command::Command;
-use crate::{Pack, TransmitterEvent, Value};
+use crate::model::Search;
+use crate::{Candidate, Item, Pack, TransmitterEvent, Value};
 use crossbeam::channel::Sender;
 use log::info;
 use std::str::from_utf8;
 use std::sync::{Arc, Mutex};
 
 /// Data model representing incoming messages to the TCP line
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Message {
     pub command: Command,
     pub key: String,
@@ -24,18 +25,30 @@ impl Message {
         }
     }
 
-    pub fn send(&self, pack: &Arc<Mutex<Pack>>, event: &Sender<TransmitterEvent>) {
+    pub fn send(self, pack: &Arc<Mutex<Pack>>, event: &Sender<TransmitterEvent>) {
         match self.command {
             Command::Add => {
-                info!("Add request");
+                info!("{:?}", self);
+                event
+                    .send(TransmitterEvent::AddNewItem(Candidate {
+                        pack: pack.clone(),
+                        object: Item::new("TEST", self.value.unwrap()).unwrap(),
+                    }))
+                    .expect("Panics on Add");
+                //TODO self.key.as_str() raise an lifetime error. I have to fix it.
             }
             Command::Get => {
-                info!("Get request");
+                //TODO self.key.as_str() raise an lifetime error. I have to fix it.
+                event
+                    .send(TransmitterEvent::GetItem(Search {
+                        pack: pack.clone(),
+                        key: "TEST",
+                    }))
+                    .expect("Panics on get item");
             }
             Command::Del => {
                 info!("Del request");
             }
-            _ => {}
         }
     }
 }
@@ -70,7 +83,7 @@ impl<'a> TryFrom<&'a [u8]> for Message {
                 let (data_type, s) = get_part(s).unwrap();
                 let (v, _) = get_part(s).unwrap();
                 let object_value = match data_type {
-                    "s" => Value::Text(""), //TODO: Lifetime Error occurred for v. I have to find solution.
+                    "s" => Value::Text("TEST"), //TODO: Lifetime Error occurred for v. I have to find solution.
                     "i8" => Value::ThinNumber(v.parse::<i8>().unwrap()),
                     "i16" => Value::MidNumber(v.parse::<i16>().unwrap()),
                     "i32" => Value::LargeNumber(v.parse::<i32>().unwrap()),

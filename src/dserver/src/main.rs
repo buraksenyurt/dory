@@ -1,7 +1,7 @@
 use crate::server::server::Server;
 use event::{InformativeEvent, TransmitterEvent};
 use log::{error, info};
-use model::{Candidate, Item, Pack, Search, Value};
+use model::{Candidate, Item, Pack, Value};
 use std::env;
 use std::process::exit;
 
