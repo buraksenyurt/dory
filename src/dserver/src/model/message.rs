@@ -1,8 +1,11 @@
 use crate::constant::constant::MAX_KEY_LEN;
 use crate::derror::message_parse_error::MessageParseError;
 use crate::model::command::Command;
-use crate::Value;
+use crate::{Pack, TransmitterEvent, Value};
+use crossbeam::channel::Sender;
+use log::info;
 use std::str::from_utf8;
+use std::sync::{Arc, Mutex};
 
 /// Data model representing incoming messages to the TCP line
 #[derive(Debug, PartialEq)]
@@ -18,6 +21,21 @@ impl Message {
             command,
             key,
             value,
+        }
+    }
+
+    pub fn send(&self, pack: &Arc<Mutex<Pack>>, event: &Sender<TransmitterEvent>) {
+        match self.command {
+            Command::Add => {
+                info!("Add request");
+            }
+            Command::Get => {
+                info!("Get request");
+            }
+            Command::Del => {
+                info!("Del request");
+            }
+            _ => {}
         }
     }
 }
@@ -71,7 +89,6 @@ impl<'a> TryFrom<&'a [u8]> for Message {
             "GET" => Ok(Message::new(Command::Get, key.to_string(), None)),
             _ => Err(MessageParseError::Command),
         }
-
     }
 }
 

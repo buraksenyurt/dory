@@ -59,45 +59,7 @@ impl<'a> Server<'a> {
                                 Ok(l) => {
                                     let message = Message::try_from(&buffer[0..l]).unwrap();
                                     info!("{:?}", message);
-
-                                    //TODO Parse the incoming message, understand it and send it to the appropriate event
-                                    // The following lines are for testing purposes. They will be removed.
-                                    let _ = event_transmitter.send(TransmitterEvent::AddNewItem(
-                                        Candidate {
-                                            pack: pack_ref.clone(),
-                                            object: Item::new("server", Value::Text("localhost"))
-                                                .unwrap(),
-                                        },
-                                    ));
-
-                                    let _ = event_transmitter.send(TransmitterEvent::AddNewItem(
-                                        Candidate {
-                                            pack: pack_ref.clone(),
-                                            object: Item::new("server", Value::Text("localhost"))
-                                                .unwrap(),
-                                        },
-                                    ));
-
-                                    let _ = event_transmitter.send(TransmitterEvent::AddNewItem(
-                                        Candidate {
-                                            pack: pack_ref.clone(),
-                                            object: Item::new("level", Value::ThinNumber(50))
-                                                .unwrap(),
-                                        },
-                                    ));
-
-                                    let _ =
-                                        event_transmitter.send(TransmitterEvent::GetItem(Search {
-                                            key: "server",
-                                            pack: pack_ref.clone(),
-                                        }));
-
-                                    let _ =
-                                        event_transmitter.send(TransmitterEvent::GetItem(Search {
-                                            key: "mail_server",
-                                            pack: pack_ref.clone(),
-                                        }));
-
+                                    message.send(&pack_ref, &event_transmitter);
                                     //drop(event_transmitter.clone());
                                 }
                                 Err(e) => {
