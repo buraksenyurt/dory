@@ -19,10 +19,10 @@ Dory uses her own private messages. The format of network packets coming to the 
 **For example**
 
 - ADD|ServerName|s|localhost
-- GET|ServerName
-- DEL|ServerName
-- ADD|Logs|l|false
-- ADD|DefaultPi|u32|3.1415
+- GET|ServerName|
+- DEL|ServerName|
+- ADD|Logs|l|false|
+- ADD|DefaultPi|f32|3.1415|
 
 s is String, l is boolean, i8 is i8, U32 is u32... Data types are arranged according to the Value enum constant.
 
@@ -48,6 +48,8 @@ RUST_LOG=info cargo run basic
 
 # Other terminal
 echo "ADD|ServerName|s|localhost|" | netcat localhost 5555
+echo "ADD|DefaultPi|f32|3.1415|" | netcat localhost 5555
+echo "GET|DefaultPi|" | netcat localhost 5555
 ```
 
 ## Common Features
