@@ -1,7 +1,8 @@
+use crate::model::Message;
 use crate::{Candidate, InformativeEvent, Item, Pack, Search, TransmitterEvent, Value};
 use crossbeam::channel;
 use crossbeam::channel::{Receiver, Sender};
-use log::{debug, error, info, warn};
+use log::{error, info, warn};
 use std::io::Read;
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
@@ -53,11 +54,11 @@ impl<'a> Server<'a> {
                 loop {
                     match l.accept() {
                         Ok((mut stream, _addrees)) => {
-                            let mut buffer = [0_u8; 1024];
+                            let mut buffer = [0_u8; 512];
                             match stream.read(&mut buffer) {
                                 Ok(l) => {
-                                    let msg = String::from_utf8(buffer[0..l].to_vec());
-                                    info!("Request, {:?}", msg.unwrap());
+                                    let message = Message::try_from(&buffer[0..l]).unwrap();
+                                    info!("{:?}", message);
 
                                     //TODO Parse the incoming message, understand it and send it to the appropriate event
                                     // The following lines are for testing purposes. They will be removed.

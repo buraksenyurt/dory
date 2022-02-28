@@ -48,6 +48,7 @@ impl<'a> TryFrom<&'a [u8]> for Message {
 
         match command {
             "ADD" => {
+                //TODO: Bug. If get_part fails then this match raise panic.
                 let (data_type, s) = get_part(s).unwrap();
                 let (v, _) = get_part(s).unwrap();
                 let object_value = match data_type {
@@ -70,6 +71,7 @@ impl<'a> TryFrom<&'a [u8]> for Message {
             "GET" => Ok(Message::new(Command::Get, key.to_string(), None)),
             _ => Err(MessageParseError::Command),
         }
+
     }
 }
 

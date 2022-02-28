@@ -4,6 +4,7 @@ pub use pack::Pack;
 pub use pack_state::PackState;
 pub use search::Search;
 pub use value::Value;
+pub use message::Message;
 
 pub mod candidate;
 mod command;

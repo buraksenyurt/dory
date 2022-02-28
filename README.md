@@ -47,7 +47,7 @@ pub enum Value {
 RUST_LOG=info cargo run basic
 
 # Other terminal
-echo "ADD|ServerName|s|localhost" | netcat localhost 5555
+echo "ADD|ServerName|s|localhost|" | netcat localhost 5555
 ```
 
 ## Common Features
