@@ -41,7 +41,7 @@ impl Pack {
         self.head += 1;
         match &self.head {
             0..=MAX_ITEM => {
-                self.items.push(item);
+                self.items.push(item.clone());
                 Some(PackState::Added(item.uuid))
             }
             _ => {
@@ -60,7 +60,7 @@ impl Pack {
     }
 
     /// Retrieves the value of a key from within the pack.
-    pub fn get(&self, key: &str) -> Option<&Item> {
+    pub fn get(&self, key: String) -> Option<&Item> {
         self.items.iter().find(|i| i.key == key)
     }
 
@@ -82,7 +82,7 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(pack.get_head(), 0);
-        let item = Item::new("server", Value::Text("localhost")).unwrap();
+        let item = Item::new("server".to_string(), Value::Text("localhost")).unwrap();
         assert!(!item.uuid.is_nil());
         let state = pack.add(item);
         assert_eq!(pack.get_head(), 1);
@@ -98,9 +98,9 @@ mod tests {
             id: 23,
             ..Default::default()
         };
-        let item = Item::new("server", Value::Text("localhost")).unwrap();
+        let item = Item::new("server".to_string(), Value::Text("localhost")).unwrap();
         pack.add(item);
-        let item = Item::new("logs_on", Value::Text("true")).unwrap();
+        let item = Item::new("logs_on".to_string(), Value::Text("true")).unwrap();
         pack.add(item);
         assert!(pack.get_head() == 2);
         pack.drop();
@@ -114,11 +114,11 @@ mod tests {
             ..Default::default()
         };
         for _ in 0..=999 {
-            let item = Item::new("lorem", Value::Text("ipsum")).unwrap();
+            let item = Item::new("lorem".to_string(), Value::Text("ipsum")).unwrap();
             pack.add(item);
         }
         assert!(pack.get_head() == 1000);
-        let item = Item::new("lorem", Value::Text("ipsum")).unwrap();
+        let item = Item::new("lorem".to_string(), Value::Text("ipsum")).unwrap();
         let state = pack.add(item).unwrap();
         assert_eq!(state, PackState::CapacityFull);
     }
@@ -129,12 +129,12 @@ mod tests {
             id: 23,
             ..Default::default()
         };
-        let item = Item::new("server", Value::Text("london")).unwrap();
+        let item = Item::new("server".to_string(), Value::Text("london")).unwrap();
         pack.add(item);
-        let item = Item::new("debug", Value::Text("on")).unwrap();
+        let item = Item::new("debug".to_string(), Value::Text("on")).unwrap();
         pack.add(item);
 
-        let item = pack.get("debug").unwrap();
+        let item = pack.get("debug".to_string()).unwrap();
         assert_eq!(item.value, Value::Text("on"));
     }
 }

@@ -85,10 +85,10 @@ pub fn pack_worker(events: Receiver<TransmitterEvent>, informative: Sender<Infor
     for event in events {
         match event {
             TransmitterEvent::AddNewItem(c) => {
-                c.pack.lock().unwrap().add(c.object);
+                c.pack.lock().unwrap().add(c.object.clone());
                 info!("Item {} added to pack.", c.object);
                 if informative
-                    .send(InformativeEvent::Added(c.object.uuid))
+                    .send(InformativeEvent::Added(c.object.clone().uuid))
                     .is_err()
                 {
                     error!("{:?}", InformativeEvent::AddError);
@@ -104,7 +104,7 @@ pub fn pack_worker(events: Receiver<TransmitterEvent>, informative: Sender<Infor
                     Some(o) => {
                         info!("{} founded.", o.to_string());
                         if informative
-                            .send(InformativeEvent::Found(Arc::new(*o)))
+                            .send(InformativeEvent::Found(Arc::new(o.clone())))
                             .is_err()
                         {
                             error!("{:?}", InformativeEvent::GetError);

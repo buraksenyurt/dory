@@ -5,5 +5,5 @@ use std::sync::{Arc, Mutex};
 #[derive(Debug)]
 pub struct Search {
     pub pack: Arc<Mutex<Pack>>,
-    pub key: &'static str,
+    pub key: String,
 }

@@ -32,17 +32,16 @@ impl Message {
                 event
                     .send(TransmitterEvent::AddNewItem(Candidate {
                         pack: pack.clone(),
-                        object: Item::new("TEST", self.value.unwrap()).unwrap(),
+                        object: Item::new(self.key, self.value.unwrap()).unwrap(),
                     }))
                     .expect("Panics on Add");
-                //TODO self.key.as_str() raise an lifetime error. I have to fix it.
             }
             Command::Get => {
                 //TODO self.key.as_str() raise an lifetime error. I have to fix it.
                 event
                     .send(TransmitterEvent::GetItem(Search {
                         pack: pack.clone(),
-                        key: "TEST",
+                        key: self.key,
                     }))
                     .expect("Panics on get item");
             }

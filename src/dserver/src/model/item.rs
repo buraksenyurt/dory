@@ -5,9 +5,9 @@ use std::fmt::{Display, Formatter};
 use uuid::Uuid;
 
 /// It is the key:value object that holds primitive data types by marking them with the unique key.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct Item {
-    pub key: &'static str,
+    pub key: String,
     pub value: Value,
     pub uuid: Uuid,
 }
@@ -37,7 +37,7 @@ impl Item {
     ///   }
     ///
     /// ```
-    pub fn new(key: &'static str, value: Value) -> Result<Self, NewItemError> {
+    pub fn new(key: String, value: Value) -> Result<Self, NewItemError> {
         if key.as_bytes().len() > MAX_KEY_LEN {
             return Err(NewItemError::InvalidKeyLen);
         }
@@ -69,7 +69,7 @@ mod test {
 
     #[test]
     fn should_created_item_has_uuid() {
-        let sample = Item::new("server", Value::Text("localhost"));
+        let sample = Item::new("server".to_string(), Value::Text("localhost"));
         match sample {
             Ok(s) => {
                 assert!(!s.uuid.is_nil());
@@ -82,14 +82,14 @@ mod test {
     #[test]
     #[should_panic]
     fn should_long_key_name_throw_panic() {
-        let _ = Item::new("server name is too long", Value::Text("localhost")).unwrap();
+        let _ = Item::new("server name is too long".to_string(), Value::Text("localhost")).unwrap();
     }
 
     #[test]
     #[should_panic]
     fn should_long_value_throw_panic() {
         let _ = Item::new(
-            "server",
+            "server".to_string(),
             Value::Text(
                 r#"This is the localhost name of the server but
         it is really toooo long name can you understand me body."#,
@@ -100,17 +100,17 @@ mod test {
 
     #[test]
     fn should_primitive_values_works() {
-        let logson = Item::new("logs_on", Value::Logical(true)).unwrap();
+        let logson = Item::new("logs_on".to_string(), Value::Logical(true)).unwrap();
         assert_eq!(logson.value, Value::Logical(true));
 
-        let max_player = Item::new("maxplayer", Value::ThinNumber(8)).unwrap();
+        let max_player = Item::new("maxplayer".to_string(), Value::ThinNumber(8)).unwrap();
         assert_eq!(max_player.value, Value::ThinNumber(8));
 
-        let default_value = Item::new("defaultvalue", Value::ThinFloat(3.22)).unwrap();
+        let default_value = Item::new("defaultvalue".to_string(), Value::ThinFloat(3.22)).unwrap();
         assert_eq!(default_value.value, Value::ThinFloat(3.22));
 
         let edge_of_tomorrow =
-            Item::new("pi", Value::LargeFloat(24.342343243423423423431415)).unwrap();
+            Item::new("pi".to_string(), Value::LargeFloat(24.342343243423423423431415)).unwrap();
         assert_eq!(
             edge_of_tomorrow.value,
             Value::LargeFloat(24.342343243423423423431415)
