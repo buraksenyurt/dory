@@ -79,10 +79,14 @@ impl<'a> TryFrom<&'a [u8]> for Message {
             return Err(MessageParseError::Empty);
         }
         //TODO I have to check incoming message pattern. If not available raise error.
-
-
-
         let s = from_utf8(value)?;
+        let pipe_count = s.chars().filter(|c| *c == '|').count();
+        match pipe_count {
+            2 | 4 => {}
+            _ => {
+                return Err(MessageParseError::Pattern);
+            }
+        }
         let (command, s) = get_part(s).unwrap();
         let (key, s) = get_part(s).unwrap();
 
@@ -111,6 +115,7 @@ impl<'a> TryFrom<&'a [u8]> for Message {
                     Some(object_value),
                 ))
             }
+            //TODO: Where are this Values?
             "DEL" => Ok(Message::new(Command::Del, key.to_string(), None)),
             "GET" => Ok(Message::new(Command::Get, key.to_string(), None)),
             _ => Err(MessageParseError::Command),

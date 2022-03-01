@@ -44,6 +44,13 @@ impl<'a> Server<'a> {
         let _ = thread::spawn(|| {
             for info in informative_receiver {
                 info!("\t{:?}", info);
+                match info {
+                    InformativeEvent::Found(v) => {
+                        //TODO How can I write this value to Tcp Stream
+                        info!("Item Founded, {:?}", v);
+                    }
+                    _ => {}
+                }
             }
         });
         info!("{} is running", self.address());
@@ -60,15 +67,25 @@ impl<'a> Server<'a> {
                                 Ok(l) => {
                                     let msg = String::from_utf8(buffer[0..l].to_vec());
                                     info!("Request, {:?}", msg.unwrap());
-                                    let message = Message::try_from(&buffer[0..l]).unwrap();
-                                    info!("{:?}", message);
-                                    let r = message.send(&pack_ref, &event_transmitter);
-                                    match r {
-                                        Ok(_) => {
-                                            Response::new(Code::Success).write(&mut stream);
+                                    let message = Message::try_from(&buffer[0..l]);
+                                    match message {
+                                        Ok(m) => {
+                                            info!("{:?}", m);
+                                            //TODO If there is a key being searched, how do I send the result to the current client?
+                                            // I need to move current tcp stream to informative event
+                                            let r = m.send(&pack_ref, &event_transmitter);
+                                            match r {
+                                                Ok(_) => {
+                                                    Response::new(Code::Success).write(&mut stream);
+                                                }
+                                                Err(e) => {
+                                                    error!("{:?}", e);
+                                                }
+                                            }
                                         }
                                         Err(e) => {
-                                            error!("{:?}", e);
+                                            error!("Parsing error, {:?}", e);
+                                            Response::new(Code::Error).write(&mut stream);
                                         }
                                     }
                                 }
@@ -85,7 +102,7 @@ impl<'a> Server<'a> {
                 }
             }
             Err(e) => {
-                error!("Sunucu başlatılamadı. Hata detayı -> {}", e);
+                error!("Internal server error-> {}", e);
             }
         }
     }

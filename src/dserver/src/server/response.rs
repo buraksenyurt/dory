@@ -12,7 +12,7 @@ impl Response {
     }
 
     pub fn write(&self, stream: &mut TcpStream) {
-        write!(stream, "{}|", self.code.to_string());
+        write!(stream, "{}|\r\n", self.code.to_string());
     }
 }
 

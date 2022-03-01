@@ -50,6 +50,7 @@ RUST_LOG=info cargo run basic
 echo "ADD|ServerName|s|localhost|" | netcat localhost 5555
 echo "ADD|DefaultPi|f32|3.1415|" | netcat localhost 5555
 echo "GET|DefaultPi|" | netcat localhost 5555
+echo "DEL|ServerName|" | netcat localhost 5555
 ```
 
 ## Common Features
