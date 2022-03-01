@@ -1,5 +1,6 @@
 use crate::constant::constant::MAX_KEY_LEN;
 use crate::derror::message_parse_error::MessageParseError;
+use crate::derror::message_send_error::MessageSendError;
 use crate::model::command::Command;
 use crate::model::Search;
 use crate::{Candidate, Item, Pack, TransmitterEvent, Value};
@@ -25,27 +26,37 @@ impl Message {
         }
     }
 
-    pub fn send(self, pack: &Arc<Mutex<Pack>>, event: &Sender<TransmitterEvent>) {
+    pub fn send(
+        self,
+        pack: &Arc<Mutex<Pack>>,
+        event: &Sender<TransmitterEvent>,
+    ) -> Result<u8, MessageSendError> {
         match self.command {
             Command::Add => {
                 info!("{:?}", self);
-                event
-                    .send(TransmitterEvent::AddNewItem(Candidate {
-                        pack: pack.clone(),
-                        object: Item::new(self.key, self.value.unwrap()).unwrap(),
-                    }))
-                    .expect("Panics on Add");
+                let r = event.send(TransmitterEvent::AddNewItem(Candidate {
+                    pack: pack.clone(),
+                    object: Item::new(self.key, self.value.unwrap()).unwrap(),
+                }));
+                match r {
+                    Ok(_) => Ok(1),
+                    Err(_) => Err(MessageSendError::Add),
+                }
             }
             Command::Get => {
-                event
-                    .send(TransmitterEvent::GetItem(Search {
-                        pack: pack.clone(),
-                        key: self.key,
-                    }))
-                    .expect("Panics on get item");
+                let r = event.send(TransmitterEvent::GetItem(Search {
+                    pack: pack.clone(),
+                    key: self.key,
+                }));
+                match r {
+                    Ok(_) => Ok(1),
+                    Err(_) => Err(MessageSendError::Get),
+                }
             }
             Command::Del => {
+                //TODO Not completed
                 info!("Del request");
+                Ok(1)
             }
         }
     }
@@ -81,7 +92,7 @@ impl<'a> TryFrom<&'a [u8]> for Message {
                 let (data_type, s) = get_part(s).unwrap();
                 let (v, _) = get_part(s).unwrap();
                 let object_value = match data_type {
-                    "s" => Value::Text(v), //TODO: Lifetime Error occurred for v. I have to find solution.
+                    "s" => Value::Text("TEST"), //TODO: Lifetime Error occurred for v. I have to find solution.
                     "i8" => Value::ThinNumber(v.parse::<i8>().unwrap()),
                     "i16" => Value::MidNumber(v.parse::<i16>().unwrap()),
                     "i32" => Value::LargeNumber(v.parse::<i32>().unwrap()),
