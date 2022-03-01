@@ -11,6 +11,8 @@ pub enum MessageParseError {
     Encoding,
     #[error("Invalid command")]
     Command,
+    #[error("Pattern is wrong")]
+    Pattern,
 }
 
 impl From<Utf8Error> for MessageParseError {

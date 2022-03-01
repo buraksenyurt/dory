@@ -1,4 +1,5 @@
 use crate::model::Message;
+use crate::server::response::{Code, Response};
 use crate::{InformativeEvent, Pack, TransmitterEvent};
 use crossbeam::channel;
 use crossbeam::channel::{Receiver, Sender};
@@ -61,15 +62,24 @@ impl<'a> Server<'a> {
                                     info!("Request, {:?}", msg.unwrap());
                                     let message = Message::try_from(&buffer[0..l]).unwrap();
                                     info!("{:?}", message);
-                                    message.send(&pack_ref, &event_transmitter);
+                                    let r = message.send(&pack_ref, &event_transmitter);
+                                    match r {
+                                        Ok(_) => {
+                                            Response::new(Code::Success).write(&mut stream);
+                                        }
+                                        Err(e) => {
+                                            error!("{:?}", e);
+                                        }
+                                    }
                                 }
                                 Err(e) => {
                                     error!("Read error, {}", e);
+                                    Response::new(Code::Error).write(&mut stream);
                                 }
                             }
                         }
                         Err(e) => {
-                            error!("Server error -> {}", e)
+                            error!("Server error -> {}", e);
                         }
                     }
                 }

@@ -78,6 +78,10 @@ impl<'a> TryFrom<&'a [u8]> for Message {
         if value.is_empty() {
             return Err(MessageParseError::Empty);
         }
+        //TODO I have to check incoming message pattern. If not available raise error.
+
+
+
         let s = from_utf8(value)?;
         let (command, s) = get_part(s).unwrap();
         let (key, s) = get_part(s).unwrap();
