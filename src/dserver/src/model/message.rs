@@ -37,7 +37,6 @@ impl Message {
                     .expect("Panics on Add");
             }
             Command::Get => {
-                //TODO self.key.as_str() raise an lifetime error. I have to fix it.
                 event
                     .send(TransmitterEvent::GetItem(Search {
                         pack: pack.clone(),
@@ -82,7 +81,7 @@ impl<'a> TryFrom<&'a [u8]> for Message {
                 let (data_type, s) = get_part(s).unwrap();
                 let (v, _) = get_part(s).unwrap();
                 let object_value = match data_type {
-                    "s" => Value::Text("TEST"), //TODO: Lifetime Error occurred for v. I have to find solution.
+                    "s" => Value::Text(v), //TODO: Lifetime Error occurred for v. I have to find solution.
                     "i8" => Value::ThinNumber(v.parse::<i8>().unwrap()),
                     "i16" => Value::MidNumber(v.parse::<i16>().unwrap()),
                     "i32" => Value::LargeNumber(v.parse::<i32>().unwrap()),

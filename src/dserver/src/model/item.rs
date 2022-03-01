@@ -82,7 +82,11 @@ mod test {
     #[test]
     #[should_panic]
     fn should_long_key_name_throw_panic() {
-        let _ = Item::new("server name is too long".to_string(), Value::Text("localhost")).unwrap();
+        let _ = Item::new(
+            "server name is too long".to_string(),
+            Value::Text("localhost"),
+        )
+        .unwrap();
     }
 
     #[test]
@@ -109,8 +113,11 @@ mod test {
         let default_value = Item::new("defaultvalue".to_string(), Value::ThinFloat(3.22)).unwrap();
         assert_eq!(default_value.value, Value::ThinFloat(3.22));
 
-        let edge_of_tomorrow =
-            Item::new("pi".to_string(), Value::LargeFloat(24.342343243423423423431415)).unwrap();
+        let edge_of_tomorrow = Item::new(
+            "pi".to_string(),
+            Value::LargeFloat(24.342343243423423423431415),
+        )
+        .unwrap();
         assert_eq!(
             edge_of_tomorrow.value,
             Value::LargeFloat(24.342343243423423423431415)
