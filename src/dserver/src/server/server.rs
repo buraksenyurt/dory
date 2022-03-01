@@ -61,7 +61,8 @@ impl<'a> Server<'a> {
                 info!("Server started.");
                 loop {
                     match l.accept() {
-                        Ok((mut stream, _addrees)) => {
+                        Ok((mut stream, addrees)) => {
+                            info!("Connected client is {:?}", addrees);
                             let mut buffer = [0_u8; 512];
                             match stream.read(&mut buffer) {
                                 Ok(l) => {

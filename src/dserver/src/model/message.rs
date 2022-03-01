@@ -130,6 +130,7 @@ mod test {
         ADD|DefaultPi|U32|3.1415|
     */
 
+    use std::f32::consts::PI;
     use crate::derror::message_parse_error::MessageParseError;
     use crate::model::command::Command;
     use crate::model::message::Message;
@@ -156,7 +157,7 @@ mod test {
         let result = Message::try_from(bytes).unwrap();
         assert_eq!(result.command, Command::Add);
         assert_eq!(result.key, "DefaultPi".to_string());
-        assert_eq!(result.value, Some(Value::ThinFloat(3.1415)));
+        assert_eq!(result.value, Some(Value::ThinFloat(PI)));
     }
 
     #[test]
